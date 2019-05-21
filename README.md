@@ -1,13 +1,13 @@
 # RSA
 RSA Algorithm for Foundations of Computer Security subject.
 
-Checkpoints:
-[x] Random Primes Generation
-[x] Miller-Rabin Primality Check
-[x] Public Key Generation
-[X] Fast (Squared) Exponentiation Algorithm
-[X] Extended Euclidian Algorithm
-[x] Private Key Generation
-[x] Message Input Collection
-[x] Encryption
-[ ] Decrytpion using CRT
+<p><b>Checkpoints:</b></p>
+<p>[x] Random Primes Generation</p>
+<p>[x] Miller-Rabin Primality Check</p>
+<p>[x] Public Key Generation</p>
+<p>[X] Fast (Squared) Exponentiation Algorithm</p>
+<p>[X] Extended Euclidian Algorithm</p>
+<p>[x] Private Key Generation</p>
+<p>[x] Message Input Collection</p>
+<p>[x] Encryption</p>
+<p>[ ] Decrytpion using CRT</p>
