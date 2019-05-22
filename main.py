@@ -2,28 +2,16 @@ import random
 import time
 
 
-'''
-power(base, exp, mod):
-    n = 1;
-    while exp > 0 
-        if exp % 2 != 0
-            n = (n * base) % mod
-        exp = exp / 2
-        base = (base * base) % mod
-    return n;
-'''
-
-
-#Fast Exponentiation
-def power(x, y, z):
-    #(x ** y) % z
-    number = 1
-    while y:
-        if y & 1:
-            number = number * x % z
-        y >>= 1
-        x = x * x % z
-    return number
+#Fast (Squared) Exponentiation
+def power(base, exp, mod):
+    #(base ^ exponent) % mod
+    result = 1
+    while exp: #exp > 0
+        if exp & 1: #exp mod 2 != 0
+            result = result * base % mod
+        exp >>= 1 #exp / 2
+        base = base * base % mod
+    return result
 
 
 def generate_prime(bits):  # generate the prime number - p e q
@@ -67,10 +55,10 @@ def isPrime(n):
     return True
 
 
-def generate_e(phi):  # recives totient of N as a parameter
+def generate_e(phi):  # recives phi(n) as a parameter
     def mcd(n1, n2):  # compute the MCD of the phi and e
         rest = 1
-        while (n2 != 0):
+        while n2 != 0:
             rest = n1 % n2
             n1 = n2
             n2 = rest
@@ -79,16 +67,8 @@ def generate_e(phi):  # recives totient of N as a parameter
 
     while True:
         e = random.randrange(2, phi)  #retrieve a random number in the range 2 < x < phi(n)
-        if (mcd(phi, e) == 1):
+        if mcd(phi, e) == 1:
             return e
-
-
-def mod(a, b):  # mod function
-    if a < b:
-        return a
-    else:
-        c = a % b
-        return c
 
 
 def encrypt(message, public_key):
@@ -100,51 +80,34 @@ def encrypt(message, public_key):
     return ' '.join(message_cypher)
 
 
-def decrypt(cipher_text, n, d):
-    cipher = cipher_text.split(' ')
+#Decryption using Chinese Remainder Theorem (CRT)
+def decrypt(cipher_text, p, q, d):
+    cipher_text = cipher_text.split()
+    m = ''
 
-    ascii_message = [power(int(cipher_char), d, n) for cipher_char in cipher] #cipher_char ^ d mod n
-    final_message = [chr(ascii_char) for ascii_char in ascii_message]
+    x, y = eea(p, q)
 
-    return ''.join(final_message)
+    for cipher in cipher_text:
+        mp = power(int(cipher), d % (p - 1), p)  # c1 = c ^ pow(d,(p-1) mod p
+        mq = power(int(cipher), d % (q - 1), q)  # c2 = c ^ pow(d,(q-1) mod q
+        m += chr(mp * x * p + mq * y * q)
+
+    return m
 
 
-def private_key(phi, e):
-    #remainder
-    r = e
-    r2 = phi
-    temp_r = r
-
-    #quocient
-    q = 0
-
-    #pkey field 1
-    x2 = 1
-    x = 0
-    temp_x = x
-
-    #pkey field 2
-    y2 = 0
-    y = 1
-    temp_y = y
-
-    while True:
-        q = r2 // r
-        r = r2 % r
-        r2 = temp_r
-        temp_r = r
-
-        x = x2 - (q * x)
-        x2 = temp_x
-        temp_x = x
-
-        y = y2 - (q * y)
-        y2 = temp_y
-        temp_y = y
-
-        if r == 1:
-            assert (1 == (phi * x) + (e * y))
-            return y
+#Extended Euclidian Algorithm
+def eea(prime1, prime2):
+    a = prime1
+    b = prime2
+    prevx, x = 1, 0;
+    prevy, y = 0, 1
+    while b:
+        q = a // b
+        x, prevx = (prevx - q * x), x
+        y, prevy = (prevy - q * y), y
+        a, b = b, a % b
+    assert (1 == (prime1 * prevx) + (prime2 * prevy))
+    return prevx, prevy
 
 
 if __name__ == '__main__':
@@ -170,7 +133,7 @@ if __name__ == '__main__':
 
     # Private key generation
     start = time.time()
-    private_key = private_key(phi, e)  # EEA
+    private_key = eea(phi, e)  # EEA
     end = time.time()
     print("Private Key generated in " + str(end - start) + " seconds.")
 
@@ -182,12 +145,12 @@ if __name__ == '__main__':
 
     # Decryption
     start = time.time()
-    plain_text = decrypt(cipher_text, n, private_key)
+    plain_text = decrypt(cipher_text, p, q, private_key[1])
     end = time.time()
     print("Message decrypted in " + str(end - start) + " seconds.\n")
 
     # Results
     print('Public Key:', public_key)
-    print('Private Key:', private_key)
+    print('Private Key:', private_key[1]) #[0] = x , [1] = y = d
     print('Cipher Text:', cipher_text)
     print('Plain Text:', plain_text)
