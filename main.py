@@ -16,13 +16,13 @@ def power(base, exp, mod):
     return result
 
 
-def generate_prime(bits):  # generate the prime number - p e q
+def generate_prime(bits):  # generate the prime numbers p and q
     if 255 < bits < 2049:
         while True:
             bytes = bits//8
             prime = int(binascii.hexlify(os.urandom(bytes)).decode('ascii'), 16)
             if isPrime(prime):
-                return int(prime)
+                return prime
 
 
 # Miller-Rabin test
