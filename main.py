@@ -20,9 +20,9 @@ def generate_prime(bits):  # generate the prime number - p e q
     if 255 < bits < 2049:
         while True:
             bytes = bits//8
-            prime = binascii.hexlify(os.urandom(bytes)).decode('ascii')
-            if isPrime(int(prime, 16)):
-                return int(prime, 16)
+            prime = int(binascii.hexlify(os.urandom(bytes)).decode('ascii'), 16)
+            if isPrime(prime):
+                return int(prime)
 
 
 # Miller-Rabin test
