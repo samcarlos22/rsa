@@ -1,3 +1,5 @@
+import binascii
+import os
 import random
 import time
 
@@ -17,9 +19,10 @@ def power(base, exp, mod):
 def generate_prime(bits):  # generate the prime number - p e q
     if 255 < bits < 2049:
         while True:
-            prime = random.getrandbits(bits)
-            if isPrime(prime):
-                return prime
+            bytes = bits//8
+            prime = binascii.hexlify(os.urandom(bytes)).decode('ascii')
+            if isPrime(int(prime, 16)):
+                return int(prime, 16)
 
 
 # Miller-Rabin test
